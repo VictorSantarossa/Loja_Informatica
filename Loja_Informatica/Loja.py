@@ -11,6 +11,8 @@ dados_conexao = (
     "PASSWORD=admin;"
 )
 
+print
+
 def obter_opcoes(tipo):
     opcoes = {}
     conexao = None
