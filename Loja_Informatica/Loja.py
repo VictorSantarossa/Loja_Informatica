@@ -6,12 +6,10 @@ import time
 dados_conexao = (
     "Driver={MySQL ODBC 9.0 Unicode Driver};"
     "Servidor=186.209.76.31:3306;"
-    "Database=loja_informatica;"
+    "Database=lojainformatica;"
     "USER=root;"
     "PASSWORD=admin;"
 )
-
-print
 
 def obter_opcoes(tipo):
     opcoes = {}
