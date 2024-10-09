@@ -29,7 +29,13 @@ def criar_tabela():
     cursor.close()
     conexao.close()
 
-# Função para inserir dados na tabela estoque
+# Função para verificar se o produto já está no banco
+def produto_existe(conexao, produto):
+    cursor = conexao.cursor()
+    cursor.execute("SELECT 1 FROM estoque WHERE Produto = ?", (produto,))
+    return cursor.fetchone() is not None
+
+# Função para inserir dados na tabela estoque sem duplicação
 def inserir_dados():
     conexao = conectar_banco()
     cursor = conexao.cursor()
@@ -46,10 +52,14 @@ def inserir_dados():
         ("Gabinete Cooler Master", 400.00, "Gabinete")
     ]
 
-    cursor.executemany("INSERT INTO estoque (Produto, Preco, Tipo) VALUES (?, ?, ?)", dados)
+    for produto, preco, tipo in dados:
+        if not produto_existe(conexao, produto):
+            cursor.execute("INSERT INTO estoque (Produto, Preco, Tipo) VALUES (?, ?, ?)", (produto, preco, tipo))
+
     conexao.commit()
     cursor.close()
     conexao.close()
+
 
 # Função para obter as opções do banco de dados SQLite3
 def obter_opcoes(tipo):
@@ -111,7 +121,7 @@ def criar_janela():
     
     # Lista de componentes disponíveis
     componentes = ["Processador", "Memória RAM", "SSD", "Fonte", "Placa Mãe", "Placa de Vídeo", "Gabinete"]
-    tipo_var = tk.StringVar(value="Processador")
+    tipo_var = tk.StringVar(value="Selecionar")
 
     # Frame de seleção de componentes
     frame_selecao = ttk.Frame(janela)
@@ -159,3 +169,4 @@ if __name__ == "__main__":
     criar_tabela()  # Certifique-se de que a tabela existe
     inserir_dados()  # Insere os dados no banco
     criar_janela()  # Inicia a interface gráfica
+ 
