@@ -101,8 +101,16 @@ def adicionar_ao_carrinho(tree, carrinho_tree, carrinho):
         messagebox.showerror("Erro", "Quantidade inválida.")
         return
     quantidade = int(quantidade_str)
+
+    # Verificar se a quantidade solicitada é válida
     if quantidade > quantidade_estoque or quantidade <= 0:
         messagebox.showerror("Erro", "Quantidade excede o estoque ou é inválida.")
+        return
+
+    # Verificar se o carrinho já possui o produto, para garantir que não exceda o estoque
+    quantidade_no_carrinho = sum([item[3] for item in carrinho if item[0] == produto_id])
+    if quantidade_no_carrinho + quantidade > quantidade_estoque:
+        messagebox.showerror("Erro", f"A quantidade solicitada para '{descricao}' excede o estoque disponível.")
         return
 
     # Adicionar ao carrinho
@@ -154,17 +162,46 @@ def limpar_carrinho(carrinho_tree, carrinho):
 def criar_janela():
     janela = tk.Tk()
     janela.title("Loja de Informática")
+    
+    # Definindo o tema escuro total
+    janela.tk_setPalette(background='#1c1c1c', foreground='white')
 
+    # Estilo do ttk com tema escuro
+    style = ttk.Style()
+    style.configure("TButton",
+                    font=("Arial", 12),
+                    padding=10,
+                    relief="flat",
+                    background="#444444",
+                    foreground="black",  # Texto preto
+                    focuscolor="none")
+    style.configure("TCombobox",
+                    font=("Arial", 12),
+                    fieldbackground="#444444",
+                    background="#444444",
+                    foreground="black")  # Texto preto
+    style.configure("TTreeview",
+                    font=("Arial", 12),
+                    background="#444444",
+                    foreground="black",  # Texto preto
+                    rowheight=25,
+                    fieldbackground="#444444",
+                    selectbackground="#555555",
+                    selectforeground="white")
+    style.configure("TLabel",
+                    font=("Arial", 14),
+                    foreground="black")  # Texto preto
+    
     # Frame de seleção de produtos
-    frame_selecao = ttk.Frame(janela)
+    frame_selecao = ttk.Frame(janela, padding=10)
     frame_selecao.grid(row=0, column=0, padx=10, pady=10)
 
     tipo_var = tk.StringVar(value="Selecionar")
     componentes = ["Processador", "Placa Mãe", "Memória RAM", "SSD", "Placa de Vídeo", "Fonte", "Gabinete"]
 
-    ttk.Label(frame_selecao, text="Tipo de Produto:").grid(row=0, column=0)
-    tipo_combobox = ttk.Combobox(frame_selecao, textvariable=tipo_var, values=componentes, state="readonly")
-    tipo_combobox.grid(row=0, column=1)
+    ttk.Label(frame_selecao, text="Tipo de Produto:").grid(row=0, column=0, sticky="w", pady=5)
+    tipo_combobox = ttk.Combobox(frame_selecao, textvariable=tipo_var, values=componentes, state="readonly", width=20)
+    tipo_combobox.grid(row=0, column=1, pady=5)
 
     tree = ttk.Treeview(frame_selecao, columns=("ID", "Produto", "Preço", "Quantidade"), show="headings", height=8)
     tree.grid(row=1, column=0, columnspan=2, padx=10, pady=10)
@@ -182,10 +219,10 @@ def criar_janela():
     tipo_combobox.bind("<<ComboboxSelected>>", lambda e: atualizar_tree())
 
     # Frame do carrinho
-    frame_carrinho = ttk.Frame(janela)
+    frame_carrinho = ttk.Frame(janela, padding=10)
     frame_carrinho.grid(row=0, column=1, padx=10, pady=10)
 
-    ttk.Label(frame_carrinho, text="Carrinho:").grid(row=0, column=0)
+    ttk.Label(frame_carrinho, text="Carrinho:").grid(row=0, column=0, sticky="w", pady=5)
 
     carrinho_tree = ttk.Treeview(frame_carrinho, columns=("Produto", "Preço", "Quantidade"), show="headings", height=8)
     carrinho_tree.grid(row=1, column=0, padx=10, pady=10)
@@ -196,13 +233,13 @@ def criar_janela():
 
     # Botões
     adicionar_btn = ttk.Button(janela, text="Adicionar ao Carrinho", command=lambda: adicionar_ao_carrinho(tree, carrinho_tree, carrinho))
-    adicionar_btn.grid(row=1, column=0, padx=10, pady=10)
+    adicionar_btn.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
 
     limpar_btn = ttk.Button(janela, text="Limpar Carrinho", command=lambda: limpar_carrinho(carrinho_tree, carrinho))
-    limpar_btn.grid(row=1, column=1, padx=10, pady=10)
+    limpar_btn.grid(row=1, column=1, padx=10, pady=10, sticky="ew")
 
     finalizar_btn = ttk.Button(janela, text="Finalizar Compra", command=lambda: finalizar_compra(carrinho_tree, carrinho))
-    finalizar_btn.grid(row=2, column=1, padx=10, pady=10)
+    finalizar_btn.grid(row=2, column=1, padx=10, pady=10, sticky="ew")
 
     janela.mainloop()
 
